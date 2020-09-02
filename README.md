@@ -9,7 +9,7 @@ Role variables
 
 All role variables are listed below with their default values.
 
-```
+```yaml
 kube_apt_key_url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
 kube_apt_repository: deb https://apt.kubernetes.io/ kubernetes-xenial main
 kube_cluster_name: mycluster
@@ -30,3 +30,8 @@ Example playbook
     - role: geerlingguy.docker
     - role: freggy.kubernetes
 ```
+
+TODO
+----
+
+* Kubeadm upgrade mechanism
