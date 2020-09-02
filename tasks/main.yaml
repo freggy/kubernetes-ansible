@@ -1,0 +1,83 @@
+---
+- name: check joined file
+  stat:
+    path: /root/joined
+  register: stat_result
+
+- name: set joined fact
+  set_fact:
+    kube_joined: true
+  when: stat_result.stat.exists
+
+- name: add apt key
+  apt_key: 
+    url: '{{ kube_apt_key_url }}'
+
+- name: install kubeadm apt repository
+  apt_repository: 
+    repo: '{{ kube_apt_repository }}'
+
+- name: install kubeadm kubectl kubelet and update apt cache
+  apt:
+    update_cache: yes
+    pkg:
+      - kubeadm
+      - kubectl
+      - kubelet
+
+- name: hold kubeadm kubectl kubelet
+  dpkg_selections:
+    name: '{{ item }}'
+    selection: hold
+  loop:
+    - kubeadm
+    - kubectl
+    - kubelet
+
+  # if the first master node has not joined the cluster
+  # this indicates that we have a fresh cluster
+- include: init-control-plane.yaml
+  when:
+    - inventory_hostname == groups.kube_master[0]
+    - kube_joined is not defined
+
+- include: generate-join-tokens.yaml
+- include: generate-cert-key.yaml
+
+- include: join-control-plane.yaml
+  when: 
+    - inventory_hostname in groups.kube_master
+    - kube_joined is not defined
+
+- include: join-worker-node.yaml
+  when: 
+    - inventory_hostname in groups.kube_worker
+    - kube_joined is not defined
+
+- name: create provisioned file
+  shell: 'echo "true" > /root/joined'
+  when: kube_joined is not defined
+
+- name: check if config changed
+  template:
+    src: flannel-cni.yaml.j2
+    dest: /root/flannel.yaml
+  when: inventory_hostname == groups.kube_master[0]
+  register: cni
+  check_mode: yes
+
+- name: remove old cni config
+  shell: kubectl delete -f /root/flannel.yaml
+  when: 
+    - cni.changed
+    - inventory_hostname == groups.kube_master[0]
+
+- name: change config
+  template:
+    src: flannel-cni.yaml.j2
+    dest: /root/flannel.yaml
+  when: inventory_hostname in groups.kube_master
+
+- name: install cni
+  shell: kubectl apply -f /root/flannel.yaml
+  when: inventory_hostname == groups.kube_master[0]

@@ -1,0 +1,12 @@
+# generate join token once but set fact for all hosts
+# that do not have fact kube_joined set
+- name: create token
+  shell: 'kubeadm token create --print-join-command'
+  register: join_command
+  delegate_to: '{{ hostvars[groups.kube_master[0]].ansible_host }}'
+  remote_user: '{{ ansible_user }}'
+  run_once: true
+
+- name: set token fact
+  set_fact: 
+    kube_join_command: '{{ join_command.stdout}}'

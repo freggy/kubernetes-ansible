@@ -1,0 +1,19 @@
+---
+# generate certifikate key once but set fact for all hosts
+# that do not have fact kube_joined set
+- name: generate certifikate key
+  shell: kubeadm alpha certs certificate-key
+  register: kube_cert_key
+  delegate_to: '{{ hostvars[groups.kube_master[0]].ansible_host }}'
+  remote_user: '{{ ansible_user }}'
+  run_once: true
+
+- name: upload certs with newly generated key
+  shell: 'kubeadm init phase upload-certs --upload-certs --certificate-key {{ kube_cert_key.stdout }}'
+  delegate_to: '{{ hostvars[groups.kube_master[0]].ansible_host }}'
+  remote_user: '{{ ansible_user }}'
+  run_once: true
+
+- name: set cert key fact
+  set_fact:
+    kube_cert_key: '{{ kube_cert_key.stdout }}'

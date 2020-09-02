@@ -1,0 +1,11 @@
+---
+- name: copy cluster config
+  template:
+    src: cluster-configuration.yaml.j2
+    dest: /root/cluster-configuration.yaml 
+
+- name: init first control plane node
+  shell: |
+    kubeadm init \
+      --config /root/cluster-configuration.yaml \
+      --upload-certs \

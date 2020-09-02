@@ -1,0 +1,21 @@
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+kubernetesVersion: v{{ kube_version }}
+imageRepository: k8s.gcr.io
+certificatesDir: /etc/kubernetes/pki
+clusterName: {{ kube_cluster_name }}
+controlPlaneEndpoint: '{{ kube_control_plane_endpoint }}'
+apiServer:
+  extraArgs:
+    authorization-mode: 'Node,RBAC'
+  timeoutForControlPlane: 4m0s
+dns:
+  type: CoreDNS
+etcd:
+  local:
+    dataDir: /var/lib/etcd
+networking:
+  dnsDomain: cluster.local
+  podSubnet: {{ kube_pod_cidr }}
+  serviceSubnet: 10.96.0.0/12
+
