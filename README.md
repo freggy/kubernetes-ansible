@@ -18,6 +18,23 @@ kube_version: '1.18.6'
 kube_control_plane_endpoint: '{{ hostvars[groups.kube_master[0]].ansible_host }}'
 ```
 
+Example inventory
+-----------------
+
+Your inventory must contain the groups `kube_master` and `kube_worker`. As the group names might suggest worker nodes live in `kube_worker` and master nodes in `kube_master`.
+
+```YAML
+all:
+  hosts:
+    master01.example.com:
+    worker01.example.com:
+  children:
+    kube_master:
+      master01.example.com:
+    kube_worker:
+      worker01.example.com:
+```
+
 Example playbook
 ----------------
 
