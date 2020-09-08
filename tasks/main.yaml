@@ -44,6 +44,12 @@
 - include: generate-join-tokens.yaml
 - include: generate-cert-key.yaml
 
+- name: write KUBELET_EXTRA_ARGS
+  lineinfile:
+    path: '{{ kube_kubelet_extra_args_config_file }}'
+    line: 'KUBELET_EXTRA_ARGS={{ kube_kubelet_extra_args }}'
+    regexp: 'KUBELET_EXTRA_ARGS='
+
 - include: join-control-plane.yaml
   when: 
     - inventory_hostname in groups.kube_master

@@ -18,4 +18,9 @@ networking:
   dnsDomain: cluster.local
   podSubnet: {{ kube_pod_cidr }}
   serviceSubnet: 10.96.0.0/12
+---
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+
+
 
