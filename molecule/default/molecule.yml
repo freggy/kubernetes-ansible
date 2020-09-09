@@ -1,0 +1,27 @@
+---
+platforms:
+  - name: master01
+    server_type: cpx11
+    image: debian-10
+    groups:
+      - kube_master
+  - name: worker01
+    server_type: cx11
+    image: debian-10
+    groups:
+      - kube_worker
+  - name: worker02
+    server_type: cx11
+    image: debian-10
+    groups:
+      - kube_worker
+provisioner:
+  name: ansible
+  playbooks:
+    prepare: prepare.yml
+driver:
+  name: hetznercloud
+dependency:
+  name: galaxy
+verifier:
+  name: ansible
