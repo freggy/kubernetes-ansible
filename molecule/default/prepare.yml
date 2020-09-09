@@ -1,0 +1,5 @@
+- name: prepare
+  hosts: all
+  tasks:
+    - name: install docker
+      shell: curl https://get.docker.com | sh

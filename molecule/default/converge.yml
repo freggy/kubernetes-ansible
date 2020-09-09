@@ -1,0 +1,10 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    ansible_user: root
+    kube_version: 1.18.6-00
+  tasks:
+    - name: "Include kubernetes-ansible"
+      include_role:
+        name: "kubernetes-ansible"

@@ -1,6 +1,7 @@
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration
-kubernetesVersion: v{{ kube_version }}
+{% set version = kube_version.split('-') %}
+kubernetesVersion: v{{ version[0] }}
 imageRepository: k8s.gcr.io
 certificatesDir: /etc/kubernetes/pki
 clusterName: {{ kube_cluster_name }}
