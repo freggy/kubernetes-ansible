@@ -2,7 +2,7 @@ Kubernetes ansible
 ==================
 
 This ansible role installs kubernetes using kubeadm. Note that Docker needs to be installed beforehand.
-Flannel CNI will be installed alongside Kubernetes. You can change the configuration under `defaults/flannel-cni.yaml.j2`.
+Cilium CNI will be installed alongside Kubernetes. You can change the configuration under `defaults/cilium-<version>.yaml.j2`.
 
 Role variables
 --------------
@@ -14,7 +14,7 @@ kube_apt_key_url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
 kube_apt_repository: deb https://apt.kubernetes.io/ kubernetes-xenial main
 kube_cluster_name: mycluster
 kube_pod_cidr: 10.244.0.0/16
-kube_version: '1.18.6'
+kube_version: '1.18.6-00'
 kube_control_plane_endpoint: '{{ hostvars[groups.kube_master[0]].ansible_host }}'
 ```
 

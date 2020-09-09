@@ -21,9 +21,9 @@
   apt:
     update_cache: yes
     pkg:
-      - kubeadm
-      - kubectl
-      - kubelet
+      - kubeadm={{ kube_version }}
+      - kubectl={{ kube_version }}
+      - kubelet={{ kube_version }}
 
 - name: hold kubeadm kubectl kubelet
   dpkg_selections:
@@ -46,9 +46,18 @@
 
 - name: write KUBELET_EXTRA_ARGS
   lineinfile:
-    path: '{{ kube_kubelet_extra_args_config_file }}'
-    line: 'KUBELET_EXTRA_ARGS={{ kube_kubelet_extra_args }}'
-    regexp: 'KUBELET_EXTRA_ARGS='
+    path: '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'
+    line: "{{ 'Environment=\"KUBELET_EXTRA_ARGS=' + kube_kubelet_extra_args + '\"' }}"
+    regexp: '^Environment="KUBELET_EXTRA_ARGS='
+    state: present
+  register: config
+
+- name: restart kubelet
+  systemd:
+    state: restarted
+    daemon_reload: true
+    name: kubelet
+  when: config is changed
 
 - include: join-control-plane.yaml
   when: 
@@ -66,24 +75,27 @@
 
 - name: check if config changed
   template:
-    src: flannel-cni.yaml.j2
+    src: cilium-1.8.3.yaml.j2
     dest: /root/flannel.yaml
   when: inventory_hostname == groups.kube_master[0]
   register: cni
   check_mode: yes
 
 - name: remove old cni config
-  shell: kubectl delete -f /root/flannel.yaml
-  when: 
+  shell: kubectl delete -f /root/cilium.yaml
+  when:
+    # 'kube_joined is defined' is needed to prevent the task to be run on the first cluster install. 
+    # otherwise the above command will lead to an error since the file is not present yet and cni.changed = true.
+    - kube_joined is defined
     - cni.changed
     - inventory_hostname == groups.kube_master[0]
 
 - name: change config
   template:
-    src: flannel-cni.yaml.j2
-    dest: /root/flannel.yaml
+    src: cilium-1.8.3.yaml.j2
+    dest: /root/cilium.yaml
   when: inventory_hostname in groups.kube_master
 
 - name: install cni
-  shell: kubectl apply -f /root/flannel.yaml
+  shell: kubectl apply -f /root/cilium.yaml
   when: inventory_hostname == groups.kube_master[0]
