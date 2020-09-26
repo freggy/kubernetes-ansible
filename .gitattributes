@@ -1,0 +1,3 @@
+# tell github to ignore .j2 files for syntax checking.
+# github detects .j2 files as HTML+Django this leads to HTML as the primary programming language of this repo.
+*.j2 linguist-vendored=false
