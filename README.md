@@ -30,9 +30,11 @@ all:
     worker01.example.com:
   children:
     kube_master:
-      master01.example.com:
+      hosts:
+        master01.example.com:
     kube_worker:
-      worker01.example.com:
+      hosts:
+        worker01.example.com:
 ```
 
 Example playbook
