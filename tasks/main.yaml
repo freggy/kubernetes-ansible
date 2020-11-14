@@ -17,7 +17,12 @@
   apt_repository: 
     repo: '{{ kube_apt_repository }}'
 
-- name: install kubeadm kubectl kubelet and update apt cache
+- name: check if kube_version is set
+  fail:
+    msg: kube_version not set
+  when: kube_version is not defined
+
+- name: install kubeadm kubectl kubelet and update apt cache 
   apt:
     update_cache: yes
     pkg:
@@ -75,8 +80,8 @@
 
 - name: check if config changed
   template:
-    src: cilium-1.8.3.yaml.j2
-    dest: /root/flannel.yaml
+    src: cilium-{{ kube_cilium_version }}.yaml.j2
+    dest: /root/cilium.yaml
   when: inventory_hostname == groups.kube_master[0]
   register: cni
   check_mode: yes
@@ -92,7 +97,7 @@
 
 - name: change config
   template:
-    src: cilium-1.8.3.yaml.j2
+    src: cilium-{{ kube_cilium_version }}.yaml.j2
     dest: /root/cilium.yaml
   when: inventory_hostname in groups.kube_master
 
