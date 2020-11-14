@@ -14,8 +14,12 @@ kube_apt_key_url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
 kube_apt_repository: deb https://apt.kubernetes.io/ kubernetes-xenial main
 kube_cluster_name: mycluster
 kube_pod_cidr: 10.244.0.0/16
-kube_version: '1.18.6-00'
+# kube_version: '<version>'
+kube_kubelet_extra_args: ''
+kube_kubelet_extra_args_config_file: /etc/default/kubelet
 kube_control_plane_endpoint: '{{ hostvars[groups.kube_master[0]].ansible_host }}'
+kube_replace_kubeproxy: true
+kube_cilium_version: 1.9.0
 ```
 
 Example inventory
