@@ -1,0 +1,81 @@
+---
+- name: unhold kubeadm
+  dpkg_selections:
+    name: 'kubeadm'
+    selection: unhold
+  when: inventory_hostname == groups.kube_master[0]
+
+- name: update kubeadm
+  apt:
+    update_cache: yes
+    name: kubeadm={{ kube_version }}
+  when: inventory_hostname == groups.kube_master[0]
+
+- name: hold kubeadm
+  dpkg_selections:
+    name: 'kubeadm'
+    selection: hold
+  when: inventory_hostname == groups.kube_master[0]
+
+- name: plan update
+  shell: kubeadm upgrade plan
+  when: inventory_hostname == groups.kube_master[0]
+
+- name: apply upgrade
+  shell: 'kubeadm upgrade apply v{{ kube_version }}'
+  when: inventory_hostname == groups.kube_master[0]
+
+
+#
+# TODO: update controle plane nodes one by one
+#
+
+- name: upgrade other control plane node
+  shell: kubeadm upgrade node
+  when: inventory_hostname in groups.kube_master
+
+- name: drain control plane node
+  shell: 'kubectl drain {{ inventory_hostname }} --ignore-daemonsets'
+  when: inventory_hostname in groups.kube_master
+
+- name: unhold kubectl and kubelet 
+  dpkg_selections:
+    name: '{{ item }}'
+    selection: unhold
+  loop:
+    - kubectl
+    - kubelet
+  when: inventory_hostname in groups.kube_master
+
+- name: update kubectl and kubelet
+  apt:
+    pkg:
+      - kubectl={{ kube_version }}
+      - kubelet={{ kube_version }}
+  when: inventory_hostname in groups.kube_master
+
+- name: hold kubectl and kubelet 
+  dpkg_selections:
+    name: '{{ item }}'
+    selection: hold
+  loop:
+    - kubectl
+    - kubelet
+  when: inventory_hostname in groups.kube_master
+
+- name: restart kubelet
+  systemd:
+    state: restarted
+    daemon_reload: true
+    name: kubelet
+  when: inventory_hostname in groups.kube_master
+
+- name: uncordon control plane nodes
+  shell: 'kubectl uncordon {{ inventory_hostname }}'
+  when: inventory_hostname in groups.kube_master
+
+# TODO: upgrade worker nodes
+
+
+
+
