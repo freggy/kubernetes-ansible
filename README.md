@@ -54,7 +54,11 @@ Example playbook
     - role: freggy.kubernetes
 ```
 
-TODO
-----
+Upgrading the cluster
+---------------------
 
-* Kubeadm upgrade mechanism
+To upgrade the cluster change the `kube_version` variable to your desired version and simply run your playbook using the `upgrade` tag.
+
+```
+$ ansible-playbook my-playbook.yaml --tags upgrade
+```

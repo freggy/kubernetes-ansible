@@ -26,47 +26,20 @@
   when: inventory_hostname == groups.kube_master[0]
 
 - name: upgrade other control plane nodes
-  block:
-    - name: upgrade control plane node
-      shell: kubeadm upgrade node
-    
-    - name: drain control plane node
-      shell: 'kubectl drain {{ inventory_hostname }} --ignore-daemonsets'
-
-    - name: unhold kubectl and kubelet 
-      dpkg_selections:
-        name: '{{ item }}'
-        selection: unhold
-      loop:
-        - kubectl
-        - kubelet
-
-    - name: update kubectl and kubelet
-      apt:
-        pkg:
-          - kubectl={{ kube_version }}
-          - kubelet={{ kube_version }}
-  
-    - name: hold kubectl and kubelet 
-      dpkg_selections:
-        name: '{{ item }}'
-        selection: hold
-      loop:
-        - kubectl
-        - kubelet
-    - name: restart kubelet
-      systemd:
-        state: restarted
-        daemon_reload: true
-        name: kubelet
-  
-    - name: uncordon control plane nodes
-      shell: 'kubectl uncordon {{ inventory_hostname }}'
+  include: upgrade-node.yaml
   when: inventory_hostname in groups.kube_master
   throttle: 1 # only do this node by node
 
+- name: upgrade worker nodes
+  include: upgrade-node.yaml
+  when: inventory_hostname in groups.kube_worker
+  throttle: 1 # same reason as above 
 
-# TODO: upgrade worker nodes
+
+
+
+
+
 
 
 

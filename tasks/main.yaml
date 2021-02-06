@@ -1,4 +1,7 @@
 ---
+- include: upgrade.yaml
+  tags: upgrade
+
 - name: check joined file
   stat:
     path: /root/joined
