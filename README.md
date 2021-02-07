@@ -54,7 +54,16 @@ Example playbook
     - role: freggy.kubernetes
 ```
 
-TODO
-----
+Upgrading the cluster
+---------------------
 
-* Kubeadm upgrade mechanism
+To upgrade your cluster, you can import the `upgrade.yaml` tasks.
+
+```
+tasks:
+  - name: "Include kubernetes-ansible"
+    include_role:
+      name: "kubernetes-ansible"
+      tasks_from: upgrade
+```
+

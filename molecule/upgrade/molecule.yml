@@ -35,7 +35,6 @@ dependency:
   name: galaxy
 verifier:
   name: ansible
-
 scenario:
   test_sequence:
     - dependency
