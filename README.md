@@ -57,8 +57,13 @@ Example playbook
 Upgrading the cluster
 ---------------------
 
-To upgrade the cluster change the `kube_version` variable to your desired version and simply run your playbook using the `upgrade` tag.
+To upgrade your cluster, you can import the `upgrade.yaml` tasks.
 
 ```
-$ ansible-playbook my-playbook.yaml --tags upgrade
+tasks:
+  - name: "Include kubernetes-ansible"
+    include_role:
+      name: "kubernetes-ansible"
+      tasks_from: upgrade
 ```
+

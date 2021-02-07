@@ -1,0 +1,14 @@
+- name: prepare
+  hosts: all
+  vars:
+    ansible_user: root
+    kube_version: 1.18.6-00
+  tasks:
+    - name: install docker
+      shell: curl https://get.docker.com | sh
+    - name: "Include kubernetes-ansible"
+      include_role:
+        name: "kubernetes-ansible"
+    - name: wait 10 seconds
+      shell: sleep 10
+       

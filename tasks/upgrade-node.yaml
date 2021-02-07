@@ -4,11 +4,12 @@
 
 - name: drain control plane node
   shell: 'kubectl drain {{ inventory_hostname }} --ignore-daemonsets'
+  delegate_to: '{{ groups.kube_master[0] }}'
 
 - name: unhold kubectl and kubelet
   dpkg_selections:
     name: '{{ item }}'
-    selection: unhold
+    selection: install
   loop:
     - kubectl
     - kubelet
@@ -35,3 +36,4 @@
     
 - name: uncordon node
   shell: 'kubectl uncordon {{ inventory_hostname }}'
+  delegate_to: '{{ groups.kube_master[0] }}'

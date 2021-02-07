@@ -2,7 +2,7 @@
 - name: unhold kubeadm
   dpkg_selections:
     name: 'kubeadm'
-    selection: unhold
+    selection: install
   when: inventory_hostname == groups.kube_master[0]
 
 - name: update kubeadm
@@ -22,7 +22,7 @@
   when: inventory_hostname == groups.kube_master[0]
 
 - name: apply upgrade
-  shell: 'kubeadm upgrade apply v{{ kube_version }}'
+  shell: 'kubeadm upgrade apply v{{ kube_version.split("-")[0] }} -y'
   when: inventory_hostname == groups.kube_master[0]
 
 - name: upgrade other control plane nodes
