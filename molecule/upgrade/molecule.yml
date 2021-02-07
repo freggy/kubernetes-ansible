@@ -5,6 +5,16 @@ platforms:
     image: debian-10
     groups:
       - kube_master
+  - name: master02
+    server_type: cpx11
+    image: debian-10
+    groups:
+      - kube_master
+  - name: master03
+    server_type: cpx11
+    image: debian-10
+    groups:
+      - kube_master
   - name: worker01
     server_type: cx11
     image: debian-10
@@ -25,3 +35,12 @@ dependency:
   name: galaxy
 verifier:
   name: ansible
+scenario:
+  test_sequence:
+    - dependency
+    - create
+    - prepare
+    - converge
+    - verify
+    - cleanup
+    - destroy

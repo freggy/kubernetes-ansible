@@ -1,0 +1,16 @@
+---
+- name: Verify
+  hosts: all
+  tasks:
+    - name: get cluster version
+      shell: kubectl get nodes | grep "v1.19.0" | wc -l
+      register: check
+      delegate_to: "{{ groups.kube_master[0] }}"
+    - name: verify
+      fail:
+        msg: Not all nodes have been updated.
+      when: "check.stdout | int != 5"
+      delegate_to: localhost
+
+
+
