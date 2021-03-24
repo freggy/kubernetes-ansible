@@ -1,0 +1,8 @@
+galaxy_info:
+  role_name: freggy.kubernetes
+  author: Yannic Rieger
+  description: Role to manage and install a minimal Kubernetes installation.
+  license: MIT
+  min_ansible_version: 1.2
+  galaxy_tags: []
+dependencies: []
