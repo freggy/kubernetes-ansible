@@ -1,29 +1,29 @@
 ---
 - name: check joined file
-  stat:
+  ansible.builtin.stat:
     path: /root/joined
   register: stat_result
 
 - name: set joined fact
-  set_fact:
+  ansible.builtin.set_fact:
     kube_joined: true
   when: stat_result.stat.exists
 
 - name: add apt key
-  apt_key: 
+  ansible.builtin.apt_key: 
     url: '{{ kube_apt_key_url }}'
 
 - name: install kubeadm apt repository
-  apt_repository: 
+  ansible.builtin.apt_repository: 
     repo: '{{ kube_apt_repository }}'
 
 - name: check if kube_version is set
-  fail:
+  ansible.builtin.fail:
     msg: kube_version not set
   when: kube_version is not defined
 
 - name: install kubeadm kubectl kubelet and update apt cache 
-  apt:
+  ansible.builtin.apt:
     update_cache: yes
     pkg:
       - kubeadm={{ kube_version }}
@@ -31,7 +31,7 @@
       - kubelet={{ kube_version }}
 
 - name: hold kubeadm kubectl kubelet
-  dpkg_selections:
+  ansible.builtin.dpkg_selections:
     name: '{{ item }}'
     selection: hold
   loop:
@@ -41,16 +41,16 @@
 
   # if the first master node has not joined the cluster
   # this indicates that we have a fresh cluster
-- include: init-control-plane.yaml
+- ansible.builtin.include: init-control-plane.yaml
   when:
     - inventory_hostname == groups.kube_master[0]
     - kube_joined is not defined
 
-- include: generate-join-tokens.yaml
-- include: generate-cert-key.yaml
+- ansible.builtin.include: generate-join-tokens.yaml
+- ansible.builtin.include: generate-cert-key.yaml
 
 - name: write KUBELET_EXTRA_ARGS
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'
     line: "{{ 'Environment=\"KUBELET_EXTRA_ARGS=' + kube_kubelet_extra_args + '\"' }}"
     regexp: '^Environment="KUBELET_EXTRA_ARGS='
@@ -58,24 +58,24 @@
   register: config
 
 - name: restart kubelet
-  systemd:
+  ansible.builtin.systemd:
     state: restarted
     daemon_reload: true
     name: kubelet
   when: config is changed
 
-- include: join-control-plane.yaml
+- ansible.builtin.include: join-control-plane.yaml
   when: 
     - inventory_hostname in groups.kube_master
     - kube_joined is not defined
 
-- include: join-worker-node.yaml
+- ansible.builtin.include: join-worker-node.yaml
   when: 
     - inventory_hostname in groups.kube_worker
     - kube_joined is not defined
 
 - name: create provisioned file
-  shell: 'echo "true" > /root/joined'
+  ansible.builtin.shell: 'echo "true" > /root/joined'
   when: kube_joined is not defined
 
 - name: check if config changed
@@ -86,21 +86,6 @@
   register: cni
   check_mode: yes
 
-- name: remove old cni config
-  shell: kubectl delete -f /root/cilium.yaml
-  when:
-    # 'kube_joined is defined' is needed to prevent the task to be run on the first cluster install. 
-    # otherwise the above command will lead to an error since the file is not present yet and cni.changed = true.
-    - kube_joined is defined
-    - cni.changed
-    - inventory_hostname == groups.kube_master[0]
-
-- name: change config
-  template:
-    src: cilium-{{ kube_cilium_version }}.yaml.j2
-    dest: /root/cilium.yaml
-  when: inventory_hostname in groups.kube_master
-
 - name: install cni
-  shell: kubectl apply -f /root/cilium.yaml
-  when: inventory_hostname == groups.kube_master[0]
+  ansible.builtin.shell: kubectl apply -f /root/cilium.yaml
+  when: inventory_hostname == groups.kube_master[0] # TODO: only when cluster is new

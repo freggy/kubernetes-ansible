@@ -1,4 +1,4 @@
 ---
 - name: join workers
-  shell: |
+  ansible.builtin.shell: |
     {{ kube_join_command }} --certificate-key {{ kube_cert_key }}

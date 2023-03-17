@@ -1,13 +1,13 @@
 ---
 - name: upgrade node
-  shell: kubeadm upgrade node
+  ansible.builtin.shell: kubeadm upgrade node
 
 - name: drain control plane node
-  shell: 'kubectl drain {{ inventory_hostname }} --ignore-daemonsets'
+  ansible.builtin.shell: 'kubectl drain {{ inventory_hostname }} --ignore-daemonsets'
   delegate_to: '{{ groups.kube_master[0] }}'
 
 - name: unhold kubectl and kubelet
-  dpkg_selections:
+  ansible.builtin.dpkg_selections:
     name: '{{ item }}'
     selection: install
   loop:
@@ -15,13 +15,13 @@
     - kubelet
 
 - name: update kubectl and kubelet
-  apt:
+  ansible.builtin.apt:
     pkg:
       - kubectl={{ kube_version }}
       - kubelet={{ kube_version }}
 
 - name: hold kubectl and kubelet
-  dpkg_selections:
+  ansible.builtin.dpkg_selections:
     name: '{{ item }}'
     selection: hold
   loop:
@@ -29,11 +29,11 @@
     - kubelet
     
 - name: restart kubelet
-  systemd:
+  ansible.builtin.systemd:
     state: restarted   
     daemon_reload: true
     name: kubelet
     
 - name: uncordon node
-  shell: 'kubectl uncordon {{ inventory_hostname }}'
+  ansible.builtin.shell: 'kubectl uncordon {{ inventory_hostname }}'
   delegate_to: '{{ groups.kube_master[0] }}'

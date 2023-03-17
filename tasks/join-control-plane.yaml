@@ -1,12 +1,12 @@
 ---  
 - name: join other control plane nodes
-  shell: |
+  ansible.builtin.shell: |
     {{ kube_join_command }} --certificate-key {{ kube_cert_key }} --control-plane
   when: 
     - inventory_hostname != groups.kube_master[0]
 
 - name: setup kubectl on master nodes
-  shell: |
+  ansible.builtin.shell: |
     mkdir -p $HOME/.kube
     cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
     chown $(id -u):$(id -g) $HOME/.kube/config
