@@ -2,7 +2,7 @@
 # generate certifikate key once but set fact for all hosts
 # that do not have fact kube_joined set
 - name: generate certifikate key
-  ansible.builtin.shell: kubeadm alpha certs certificate-key
+  ansible.builtin.shell: kubeadm certs certificate-key
   register: kube_cert_key
   delegate_to: '{{ hostvars[groups.kube_master[0]].ansible_host }}'
   remote_user: '{{ ansible_user }}'
