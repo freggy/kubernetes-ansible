@@ -1,9 +1,15 @@
 ---
+kube_os: xUbuntu_22.04
+kube_libcontainers_apt_key: 'https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ kube_os }}/Release.key'
+kube_libcontainers_crio_apt_key: 'https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ kube_crio_version }}/{{ kube_os }}/Release.key'
+kube_libcontainers_apt_repository: 'deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ kube_os }}/'
+kube_libcontainers_crio_apt_repository: 'deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ kube_crio_version | replace("/", "") }}/{{ kube_os }}/'
+kube_crio_version: 1.26:/1.26.2
 kube_apt_key_url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
 kube_apt_repository: deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main
 kube_cluster_name: mycluster
 kube_pod_cidr: 10.244.0.0/16
-# kube_version: '<version>'
+kube_version: 1.26.2
 kube_kubelet_extra_args: ''
 kube_kubelet_extra_args_config_file: /etc/default/kubelet
 kube_control_plane_endpoint: '{{ hostvars[groups.kube_master[0]].ansible_host }}'

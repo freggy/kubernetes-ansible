@@ -1,0 +1,38 @@
+---
+- name: add libcontainers libcontainers-cri-o apt key
+  ansible.builtin.apt_key:
+    url: '{{ item }}'
+  loop:
+    - '{{ kube_libcontainers_apt_key }}'
+    - '{{ kube_libcontainers_crio_apt_key }}'
+
+- name: add libcontainers libcontainers-cri-o apt repo
+  ansible.builtin.apt_repository:
+    repo: '{{ item }}'
+  loop:
+    - '{{ kube_libcontainers_apt_repository }}'
+    - '{{ kube_libcontainers_crio_apt_repository }}'
+
+- name: install cri-o cri-o-runc libseccomp2
+  ansible.builtin.apt:
+    update_cache: yes
+    pkg:
+      - cri-o={{ kube_crio_version }}
+      - cri-o-runc={{ kube_crio_version }}
+      - libseccomp2
+
+- name: hold cri-o cri-o-runc libseccomp2
+  ansible.builtin.dpkg_selections:
+    name: '{{ item }}'
+    selection: hold
+  loop:
+    - cri-o
+    - cri-o-runc
+    - libseccomp2
+
+- name: restart cri-o
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: true
+    name: crio
+
