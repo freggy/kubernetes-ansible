@@ -7,7 +7,6 @@ kube_pod_cidr: 10.244.0.0/16
 kube_kubelet_extra_args: ''
 kube_kubelet_extra_args_config_file: /etc/default/kubelet
 kube_control_plane_endpoint: '{{ hostvars[groups.kube_master[0]].ansible_host }}'
-kube_replace_kubeproxy: true
 kube_cilium_version: 1.9.0
 
 

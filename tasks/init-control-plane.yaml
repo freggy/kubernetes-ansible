@@ -7,8 +7,6 @@
 - name: init first control plane node
   ansible.builtin.shell: |
     kubeadm init \
-    {% if kube_replace_kubeproxy %}
       --skip-phases=addon/kube-proxy \
-    {% endif %}
       --config /root/cluster-configuration.yaml \
       --upload-certs \
