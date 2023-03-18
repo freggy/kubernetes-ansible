@@ -1,18 +1,30 @@
 ---
-kube_os: xUbuntu_22.04
-kube_libcontainers_apt_key: 'https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ kube_os }}/Release.key'
-kube_libcontainers_crio_apt_key: 'https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ kube_crio_version }}/{{ kube_os }}/Release.key'
-kube_libcontainers_apt_repository: 'deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ kube_os }}/'
-kube_libcontainers_crio_apt_repository: 'deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ kube_crio_version | replace("/", "") }}/{{ kube_os }}/'
-kube_crio_version: 1.26:/1.26.2
+# internal variables
+__libcontainers_version_array: '{{ kube_crio_apt_version | split(".") }}'
+__libcontainers_version_minor: '{{ __libcontainers_version_array[:3] | join(".") | split("~") | first }}'
+__libcontainers_version_major: '{{ __libcontainers_version_array[:2] | join(".") }}'
+__libcontainers_version_path_element: '{{ __libcontainers_version_major }}:/{{ __libcontainers_version_minor }}'
+
+kube_apt_os: xUbuntu_22.04
+kube_libcontainers_apt_keys:
+  - url: 'https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ kube_apt_os }}/Release.key'
+    keyring: /usr/share/keyrings/libcontainers-archive-keyring.gpg 
+  - url: 'https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ __libcontainers_version_path_element }}/{{ kube_apt_os }}/Release.key'
+    keyring: /usr/share/keyrings/libcontainers-crio-archive-keyring.gpg
+kube_libcontainers_repositories:
+  - repository: 'deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ kube_apt_os }}/ /'
+    file: devel:kubic:libcontainers:stable
+  - repository: 'deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ __libcontainers_version_path_element }}/{{ kube_apt_os }}/ /'
+    file: 'devel:kubic:libcontainers:stable:cri-o:{{ __libcontainers_version_path_element | replace("/", "") }}'
+kube_crio_apt_version: 1.26.1~0
+kube_crio_runc_apt_version: 1.0.1~2
 kube_apt_key_url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
 kube_apt_repository: deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main
 kube_cluster_name: mycluster
 kube_pod_cidr: 10.244.0.0/16
-kube_version: 1.26.2
+kube_version: 1.26.3
 kube_kubelet_extra_args: ''
 kube_kubelet_extra_args_config_file: /etc/default/kubelet
 kube_control_plane_endpoint: '{{ hostvars[groups.kube_master[0]].ansible_host }}'
 kube_cilium_version: 1.9.0
-
 

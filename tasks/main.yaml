@@ -9,11 +9,14 @@
     kube_joined: true
   when: stat_result.stat.exists
 
-- name: add apt key
+- ansible.builtin.include: install-cri-o.yaml # TODO: only when first install
+
+- name: add kubernetes apt key
   ansible.builtin.apt_key: 
     url: '{{ kube_apt_key_url }}'
+    keyring: /etc/apt/keyrings/kubernetes-archive-keyring.gpg
 
-- name: install kubeadm apt repository
+- name: install kubernetes apt repository
   ansible.builtin.apt_repository: 
     repo: '{{ kube_apt_repository }}'
 
@@ -26,9 +29,9 @@
   ansible.builtin.apt:
     update_cache: yes
     pkg:
-      - kubeadm={{ kube_version }}
-      - kubectl={{ kube_version }}
-      - kubelet={{ kube_version }}
+      - kubeadm={{ kube_version }}-00
+      - kubectl={{ kube_version }}-00
+      - kubelet={{ kube_version }}-00
 
 - name: hold kubeadm kubectl kubelet
   ansible.builtin.dpkg_selections:
@@ -38,6 +41,17 @@
     - kubeadm
     - kubectl
     - kubelet
+
+- name: load br_netfilter 
+  community.general.modprobe:
+    name: br_netfilter
+    state: present
+
+- name: enable ip forwarding 
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: true
 
   # if the first master node has not joined the cluster
   # this indicates that we have a fresh cluster
@@ -77,15 +91,3 @@
 - name: create provisioned file
   ansible.builtin.shell: 'echo "true" > /root/joined'
   when: kube_joined is not defined
-
-- name: check if config changed
-  template:
-    src: cilium-{{ kube_cilium_version }}.yaml.j2
-    dest: /root/cilium.yaml
-  when: inventory_hostname == groups.kube_master[0]
-  register: cni
-  check_mode: yes
-
-- name: install cni
-  ansible.builtin.shell: kubectl apply -f /root/cilium.yaml
-  when: inventory_hostname == groups.kube_master[0] # TODO: only when cluster is new
