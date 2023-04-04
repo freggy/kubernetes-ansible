@@ -1,14 +1,12 @@
 ---
 - name: copy cluster config
-  template:
+  ansible.builtin.template:
     src: cluster-configuration.yaml.j2
     dest: /root/cluster-configuration.yaml 
 
 - name: init first control plane node
-  shell: |
+  ansible.builtin.shell: |
     kubeadm init \
-    {% if kube_replace_kubeproxy %}
       --skip-phases=addon/kube-proxy \
-    {% endif %}
       --config /root/cluster-configuration.yaml \
       --upload-certs \

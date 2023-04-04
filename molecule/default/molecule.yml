@@ -1,28 +1,23 @@
 ---
 platforms:
-  - name: master01
+  - name: molecule-master01
     server_type: cpx11
-    image: debian-10
+    image: ubuntu-22.04
     groups:
       - kube_master
-  - name: master02
+  - name: molecule-master02
     server_type: cpx11
-    image: debian-10
+    image: ubuntu-22.04
     groups:
       - kube_master
-  - name: master03
-    server_type: cpx11
-    image: debian-10
-    groups:
-      - kube_master
-  - name: worker01
+  - name: molecule-worker01
     server_type: cx11
-    image: debian-10
+    image: ubuntu-22.04
     groups:
       - kube_worker
-  - name: worker02
+  - name: molecule-worker02
     server_type: cx11
-    image: debian-10
+    image: ubuntu-22.04
     groups:
       - kube_worker
 provisioner:
