@@ -91,3 +91,19 @@
 - name: create provisioned file
   ansible.builtin.shell: 'echo "true" > /root/joined'
   when: kube_joined is not defined
+
+- name: generate cilium config # TODO: only on first install
+  template:
+    src: cilium.yaml.j2
+    dest: /root/cilium.yaml
+  when: inventory_hostname in groups.kube_master
+
+- name: install cilium and wait for it to be ready  
+  block:
+    - name: install cilium
+      shell: kubectl apply -f /root/cilium.yaml
+    - name: wait for cilium to be ready
+      shell: kubectl wait --for=condition=ready -n kube-system -l k8s-app=cilium pod
+      timeout: 30
+  when: inventory_hostname == groups.kube_master[0]
+
