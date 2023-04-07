@@ -9,10 +9,22 @@ kind: ClusterConfiguration
 kubernetesVersion: {{ kube_version }}
 controlPlaneEndpoint: {{ kube_control_plane_endpoint }}:6443
 apiServer:
-  "authorization-mode": "RBAC"
+{% if kube_oidc_ca_file is defined -%}
+{% set dir = kube_oidc_ca_file | basename %}
+  extraVolumes:
+    name: ca-certs
+    hostPath: {{ dir }}
+    mountPath: {{ dir }}
+    readOnly: true
+{%- endif %}
+  extraArgs:
+    "authorization-mode": "RBAC"
 {% if kube_oidc_auth_enabled -%}
-  "oidc-issuer-url": "{{ kube_oidc_issuer_url }}"
-  "oidc-client-id": "{{ kube_oidc_client_id }}"
-  "oidc-username-claim": "{{ kube_oidc_username_claim }}"
-  "oidc-groups-claim": "{{ kube_oidc_groups_claim }}"
+    "oidc-issuer-url": "{{ kube_oidc_issuer_url }}"
+    "oidc-client-id": "{{ kube_oidc_client_id }}"
+    "oidc-username-claim": "{{ kube_oidc_username_claim }}"
+    "oidc-groups-claim": "{{ kube_oidc_groups_claim }}"
+{% if kube_oidc_ca_file is defined -%}
+    "oidc-ca-file": "{{ kube_oidc_ca_file }}"
+{%- endif %}
 {%- endif %}
