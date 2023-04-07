@@ -1,0 +1,42 @@
+---
+platforms:
+  - name: molecule-master01
+    server_type: cpx11
+    image: ubuntu-22.04
+    groups:
+      - kube_master
+  - name: molecule-master02
+    server_type: cpx11
+    image: ubuntu-22.04
+    groups:
+      - kube_master
+  - name: molecule-worker01
+    server_type: cx11
+    image: ubuntu-22.04
+    groups:
+      - kube_worker
+  - name: molecule-worker02
+    server_type: cx11
+    image: ubuntu-22.04
+    groups:
+      - kube_worker
+provisioner:
+  name: ansible
+  playbooks:
+    prepare: prepare.yml
+driver:
+  name: hetznercloud
+dependency:
+  name: galaxy
+verifier:
+  name: ansible
+
+scenario:
+  test_sequence:
+    - dependency
+    - create
+    - prepare
+    - converge
+    - verify
+    - cleanup
+    - destroy
