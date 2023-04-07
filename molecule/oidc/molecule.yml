@@ -20,6 +20,11 @@ platforms:
     image: ubuntu-22.04
     groups:
       - kube_worker
+  - name: molecule-dex
+    server_type: cx11
+    image: ubuntu-22.04
+    groups:
+      - dex
 provisioner:
   name: ansible
   playbooks:

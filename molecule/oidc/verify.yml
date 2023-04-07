@@ -1,14 +1,9 @@
 ---
 - name: Verify
-  hosts: all
+  hosts: localhost
   tasks:
-    - name: get cluster version
-      shell: kubectl get nodes | grep "Ready" | wc -l
-      register: check
-      until: "check.stdout | int == 5"
-      delegate_to: "{{ groups.kube_master[0] }}"
-      delay: 2
-      retries: 10
-
+  # TODO:
+  # * try to create resource with fitting permissions
+  # * try to create resource without fitting permissions
 
 

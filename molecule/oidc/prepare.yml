@@ -1,0 +1,29 @@
+---
+- name: Prepare
+  hosts: all
+  vars:
+    ansible_user: root
+  tasks:
+    - name: copy certs
+      ansible.builtin.copy:
+        src: ../testdata/ssl
+        dest: /root
+    - block:
+        - name: copy dex config
+          ansible.builtin.template:
+            src: dex.yaml.j2
+            dest: /root/dex.yaml
+        - name: install docker
+          ansible.builtin.shell: curl https://get.docker.com | bash
+        - name: start dex container
+          community.docker.docker_container:
+            name: mycontainer
+            state: present
+            image: ghcr.io/dexidp/dex:v2.36.0-alpine
+            volumes:
+              - /root/ssl:/ssl
+              - /root/dex.yaml:/dex.yaml
+    state: present
+    image: ubuntu:14.04
+    command: sleep infinity
+      delegate_to: dex

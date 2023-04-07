@@ -8,6 +8,7 @@
     kube_oidc_client-id: ""
     kube_oidc_username_claim: ""
     kube_oidc_groups_claim: ""
+    kube_oidc_ca_file: /root/ssl/ca.pem
   tasks:
     - name: "Include kubernetes-ansible"
       include_role:
