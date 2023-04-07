@@ -1,15 +1,30 @@
 ---
-- name: check joined file
-  ansible.builtin.stat:
-    path: /root/joined
-  register: stat_result
+- name: gather the package facts
+  ansible.builtin.package_facts:
+    manager: auto
 
-- name: set joined fact
-  ansible.builtin.set_fact:
-    kube_joined: true
-  when: stat_result.stat.exists
+- name: create directory for ansible custom facts
+  ansible.builtin.file:
+    state: directory
+    recurse: true
+    path: /etc/ansible/facts.d
 
-- ansible.builtin.include: install-cri-o.yaml # TODO: only when first install
+- name: set install kube fact
+  ansible.builtin.template:
+    src: kube.fact.j2
+    dest: /etc/ansible/facts.d/kube.fact
+  vars:
+    joined: false
+    cilium_installed: false
+
+- name: re-read facts after adding kube fact
+  ansible.builtin.setup:
+    filter: ansible_local
+
+- ansible.builtin.include: install-cri-o.yaml
+  when: 
+    - '"cri-o" not in ansible_facts.packages'
+    - '"cri-o-runc" not in ansible_facts.packages'
 
 - name: add kubernetes apt key
   ansible.builtin.apt_key: 
@@ -58,7 +73,7 @@
 - ansible.builtin.include: init-control-plane.yaml
   when:
     - inventory_hostname == groups.kube_master[0]
-    - kube_joined is not defined
+    - ansible_local.kube.joined == false
 
 - ansible.builtin.include: generate-join-tokens.yaml
 - ansible.builtin.include: generate-cert-key.yaml
@@ -81,22 +96,29 @@
 - ansible.builtin.include: join-control-plane.yaml
   when: 
     - inventory_hostname in groups.kube_master
-    - kube_joined is not defined
+    - ansible_local.kube.joined == false
 
 - ansible.builtin.include: join-worker-node.yaml
   when: 
     - inventory_hostname in groups.kube_worker
-    - kube_joined is not defined
+    - ansible_local.kube.joined == false
 
-- name: create provisioned file
-  ansible.builtin.shell: 'echo "true" > /root/joined'
-  when: kube_joined is not defined
+- name: set and persist joined fact
+  ansible.builtin.template:
+    src: kube.fact.j2
+    dest: /etc/ansible/facts.d/kube.fact
+  vars:
+    joined: true
+    cilium_installed: '{{ ansible_local.kube.cilium_installed }}'
+  when: ansible_local.kube.joined == false
 
-- name: generate cilium config # TODO: only on first install
-  template:
+- name: generate cilium config
+  ansible.builtin.template:
     src: cilium.yaml.j2
     dest: /root/cilium.yaml
-  when: inventory_hostname in groups.kube_master
+  when: 
+    - inventory_hostname in groups.kube_master
+    - ansible_local.kube.cilium_installed == false
 
 - name: install cilium and wait for it to be ready  
   block:
@@ -104,6 +126,15 @@
       shell: kubectl apply -f /root/cilium.yaml
     - name: wait for cilium to be ready
       shell: kubectl wait --for=condition=ready -n kube-system -l k8s-app=cilium pod
-      timeout: 30
-  when: inventory_hostname == groups.kube_master[0]
+  when: 
+    - inventory_hostname == groups.kube_master[0]
+    - ansible_local.kube.cilium_installed == false
 
+- name: set and persist cilium_installed fact
+  ansible.builtin.template:
+    src: kube.fact.j2
+    dest: /etc/ansible/facts.d/kube.fact
+  vars:
+    cilium_installed: true
+    joined: true
+  when: ansible_local.kube.cilium_installed == false
