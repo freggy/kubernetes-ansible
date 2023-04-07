@@ -1,0 +1,44 @@
+# The base path of Dex and the external name of the OpenID Connect service.
+# This is the canonical URL that all clients MUST use to refer to Dex. If a
+# path is provided, Dex's HTTP service will listen at a non-root URL.
+issuer: {{ molecule_dex_issuer_url }}
+storage:
+  type: memory
+web:
+  https: {{ molecule_dex_https_endpoint }}
+  tlsCert: {{ molecule_dex_tls_cert }}
+  tlsKey: {{ molecule_dex_tls_key }}
+  connectors:
+    - type: ldap
+      name: OpenLDAP
+      id: ldap
+      config:
+      host: localhost:389
+      insecureNoSSL: true
+      bindDN: cn=admin,dc=example,dc=org
+      bindPW: admin
+
+      usernamePrompt: Email Address
+
+      userSearch:
+        baseDN: ou=People,dc=example,dc=org
+        filter: "(objectClass=person)"
+        username: mail
+        # "DN" (case sensitive) is a special attribute name. It indicates that
+        # this value should be taken from the entity's DN not an attribute on
+        # the entity.
+        idAttr: DN
+        emailAttr: mail
+        nameAttr: cn
+
+      groupSearch:
+        baseDN: ou=Groups,dc=example,dc=org
+        filter: "(objectClass=groupOfNames)"
+        userMatchers:
+          # A user is a member of a group when their DN matches
+          # the value of a "member" attribute on the group entity.
+          - userAttr: DN
+            groupAttr: member
+          # The group name should be the "cn" value.
+          nameAttr: cn 
+  
