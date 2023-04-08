@@ -4,11 +4,11 @@
   vars:
     ansible_user: root
     kube_oidc_auth_enabled: true
-    kube_oidc_issuer_url: ""
-    kube_oidc_client-id: ""
-    kube_oidc_username_claim: ""
-    kube_oidc_groups_claim: ""
-    kube_oidc_ca_file: /root/ssl/ca.pem
+    kube_oidc_issuer_url: https://dex.example.com:5554/dex
+    kube_oidc_client_id: "kubernetes"
+    kube_oidc_username_claim: "email"
+    kube_oidc_groups_claim: "groups"
+    kube_oidc_ca_file: /ssl/ca.pem
   tasks:
     - name: "Include kubernetes-ansible"
       include_role:

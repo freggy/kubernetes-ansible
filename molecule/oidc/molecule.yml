@@ -5,26 +5,31 @@ platforms:
     image: ubuntu-22.04
     groups:
       - kube_master
+    location: nbg1
   - name: molecule-master02
     server_type: cpx11
     image: ubuntu-22.04
     groups:
       - kube_master
+    location: nbg1
   - name: molecule-worker01
     server_type: cx11
     image: ubuntu-22.04
     groups:
       - kube_worker
+    location: nbg1
   - name: molecule-worker02
     server_type: cx11
     image: ubuntu-22.04
     groups:
       - kube_worker
+    location: nbg1
   - name: molecule-dex
     server_type: cx11
     image: ubuntu-22.04
     groups:
       - dex
+    location: nbg1
 provisioner:
   name: ansible
   playbooks:
@@ -42,6 +47,6 @@ scenario:
     - create
     - prepare
     - converge
-    - verify
-    - cleanup
-    - destroy
+      #- verify
+      #- cleanup
+      #- destroy

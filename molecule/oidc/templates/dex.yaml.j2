@@ -1,0 +1,41 @@
+issuer: {{ molecule_dex_issuer_url }}
+storage:
+  type: memory
+web:
+  https: {{ molecule_dex_https_endpoint }}
+  tlsCert: {{ molecule_dex_tls_cert }}
+  tlsKey: {{ molecule_dex_tls_key }}
+connectors:
+  - type: ldap
+    name: OpenLDAP
+    id: ldap
+    config:
+      host: {{ dex_host_ip }}:389
+      insecureNoSSL: true
+      bindDN: cn=admin,dc=example,dc=org
+      bindPW: admin
+
+      usernamePrompt: Email Address
+
+      userSearch:
+        baseDN: ou=People,dc=example,dc=org
+        filter: "(objectClass=person)"
+        username: mail
+        idAttr: DN
+        emailAttr: mail
+        nameAttr: cn
+
+      groupSearch:
+        baseDN: ou=Groups,dc=example,dc=org
+        filter: "(objectClass=groupOfNames)"
+        userMatchers:
+          - userAttr: DN
+            groupAttr: member
+        nameAttr: cn 
+staticClients:
+  - id: kubernetes
+    redirectURIs:
+      - http://localhost:8000
+      - http://localhost:18000
+    name: kubernetes
+    secret: superdupersecret

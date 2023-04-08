@@ -3,27 +3,57 @@
   hosts: all
   vars:
     ansible_user: root
+    dex_host_ip: '{{ hostvars[groups.dex[0]].ansible_default_ipv4.address }}'
+    molecule_dex_issuer_url: https://dex.example.com:5554/dex
+    molecule_dex_https_endpoint: 0.0.0.0:5554
+    molecule_dex_tls_cert: /ssl/cert.pem
+    molecule_dex_tls_key: /ssl/key.pem
+
   tasks:
     - name: copy certs
       ansible.builtin.copy:
-        src: ../testdata/ssl
-        dest: /root
+        src: ssl
+        dest: /
+    - name: set /etc/hosts entry
+      ansible.builtin.shell: 'echo "{{ dex_host_ip }} dex.example.com" >> /etc/hosts'
     - block:
         - name: copy dex config
           ansible.builtin.template:
             src: dex.yaml.j2
             dest: /root/dex.yaml
+        - name: install docker-py
+          ansible.builtin.shell:  |
+            apt update -y
+            apt install python3-pip -y
+            pip3 install docker-py
         - name: install docker
           ansible.builtin.shell: curl https://get.docker.com | bash
         - name: start dex container
           community.docker.docker_container:
-            name: mycontainer
-            state: present
+            name: dex
+            state: started
             image: ghcr.io/dexidp/dex:v2.36.0-alpine
+            command: dex serve /dex.yaml
             volumes:
-              - /root/ssl:/ssl
+              - /ssl:/ssl
               - /root/dex.yaml:/dex.yaml
-    state: present
-    image: ubuntu:14.04
-    command: sleep infinity
-      delegate_to: dex
+            detach: true
+            ports:
+              - 5554:5554
+        - name: copy ldap config
+          ansible.builtin.copy:
+            src: config.ldif
+            dest: /root/config.ldif
+        - name: start ldap container
+          community.docker.docker_container:
+            name: ldap
+            state: started
+            image: osixia/openldap:1.4.0
+            command: --copy-service
+            volumes: 
+              - /root/config.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/config-ldap.ldif
+            detach: true
+            ports:
+              - 389:389
+              - 636:636
+      when: inventory_hostname == groups.dex[0]
