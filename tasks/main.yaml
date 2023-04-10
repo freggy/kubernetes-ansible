@@ -125,7 +125,7 @@
     - name: install cilium
       shell: kubectl apply -f /root/cilium.yaml
     - name: wait for cilium to be ready
-      shell: kubectl wait --for=condition=ready -n kube-system -l k8s-app=cilium pod
+      shell: kubectl wait --timeout=5m --for=condition=ready -n kube-system -l k8s-app=cilium pod
   when: 
     - inventory_hostname == groups.kube_master[0]
     - ansible_local.kube.cilium_installed == false
