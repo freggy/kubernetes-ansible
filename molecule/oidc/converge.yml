@@ -5,11 +5,36 @@
     ansible_user: root
     kube_oidc_auth_enabled: true
     kube_oidc_issuer_url: https://dex.example.com:5554/dex
-    kube_oidc_client_id: "kubernetes"
-    kube_oidc_username_claim: "email"
-    kube_oidc_groups_claim: "groups"
+    kube_oidc_client_id: kubernetes
+    kube_oidc_username_claim: email
+    kube_oidc_groups_claim: groups
     kube_oidc_ca_file: /ssl/ca.pem
+    roles:
+      - admins.clusterrolebinding.yaml
+      - developers.clusterrolebinding.yaml
   tasks:
-    - name: "Include kubernetes-ansible"
+    - name: 'Include kubernetes-ansible'
       include_role:
-        name: "kubernetes-ansible"
+        name: 'kubernetes-ansible'
+    - block:
+      - name: copy cluster role bindings
+        ansible.builtin.copy:
+          src: '{{ item }}'
+          dest: '/root/{{ item }}'
+        loop: '{{ roles }}'
+      - name: install cluster role bindings
+        ansible.builtin.shell: 'kubectl apply -f /root/{{ item }}'
+        loop: '{{ roles }}'
+      delegate_to: '{{ groups.kube_master[0] }}'
+    - name: get kubernetes ca
+      ansible.builtin.slurp:
+        src: /etc/kubernetes/pki/ca.crt
+      register: ca
+      delegate_to: '{{ groups.kube_master[0] }}'
+      run_once: true
+    - name: generate kubeconfig
+      ansible.builtin.template:
+        src: kubeconfig.j2
+        dest: kubeconfig
+      delegate_to: localhost
+      run_once: true

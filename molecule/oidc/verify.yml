@@ -1,9 +1,0 @@
----
-- name: Verify
-  hosts: localhost
-  tasks:
-  # TODO:
-  # * try to create resource with fitting permissions
-  # * try to create resource without fitting permissions
-
-
