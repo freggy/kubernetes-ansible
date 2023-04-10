@@ -34,10 +34,9 @@ ou: Groups
 dn: cn=admins,ou=Groups,dc=example,dc=org
 objectClass: groupOfNames
 cn: admins
-member: cn=john,ou=People,dc=example,dc=org
 member: cn=jane,ou=People,dc=example,dc=org
 
 dn: cn=developers,ou=Groups,dc=example,dc=org
 objectClass: groupOfNames
 cn: developers
-member: cn=jane,ou=People,dc=example,dc=org
+member: cn=john,ou=People,dc=example,dc=org
