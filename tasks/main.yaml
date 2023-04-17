@@ -21,7 +21,7 @@
   ansible.builtin.setup:
     filter: ansible_local
 
-- ansible.builtin.include: install-cri-o.yaml
+- ansible.builtin.include_tasks: install-cri-o.yaml
   when: 
     - '"cri-o" not in ansible_facts.packages'
     - '"cri-o-runc" not in ansible_facts.packages'
@@ -70,13 +70,13 @@
 
   # if the first master node has not joined the cluster
   # this indicates that we have a fresh cluster
-- ansible.builtin.include: init-control-plane.yaml
-  when:
-    - inventory_hostname == groups.kube_master[0]
-    - ansible_local.kube.joined == false
+- ansible.builtin.import_tasks: init-control-plane.yaml
+  delegate_to: '{{ groups.kube_master[0] }}'
+  run_once: true
+  when: ansible_local.kube.joined == false
 
-- ansible.builtin.include: generate-join-tokens.yaml
-- ansible.builtin.include: generate-cert-key.yaml
+- ansible.builtin.include_tasks: generate-join-tokens.yaml
+- ansible.builtin.include_tasks: generate-cert-key.yaml
 
 - name: write KUBELET_EXTRA_ARGS
   ansible.builtin.lineinfile:
@@ -93,12 +93,12 @@
     name: kubelet
   when: config is changed
 
-- ansible.builtin.include: join-control-plane.yaml
-  when: 
-    - inventory_hostname in groups.kube_master
-    - ansible_local.kube.joined == false
+- ansible.builtin.import_tasks: join-control-plane.yaml
+  delegate_to: '{{ groups.kube_master[0] }}'
+  run_once: true
+  when: ansible_local.kube.joined == false
 
-- ansible.builtin.include: join-worker-node.yaml
+- ansible.builtin.include_tasks: join-worker-node.yaml
   when: 
     - inventory_hostname in groups.kube_worker
     - ansible_local.kube.joined == false
@@ -116,9 +116,9 @@
   ansible.builtin.template:
     src: cilium.yaml.j2
     dest: /root/cilium.yaml
-  when: 
-    - inventory_hostname in groups.kube_master
-    - ansible_local.kube.cilium_installed == false
+  delegate_to: '{{ groups.kube_master[0] }}'
+  run_once: true
+  when: ansible_local.kube.cilium_installed == false
 
 - name: install cilium and wait for it to be ready  
   block:
@@ -126,9 +126,9 @@
       shell: kubectl apply -f /root/cilium.yaml
     - name: wait for cilium to be ready
       shell: kubectl wait --timeout=5m --for=condition=ready -n kube-system -l k8s-app=cilium pod
-  when: 
-    - inventory_hostname == groups.kube_master[0]
-    - ansible_local.kube.cilium_installed == false
+  delegate_to: '{{ groups.kube_master[0] }}'
+  run_once: true
+  when: ansible_local.kube.cilium_installed == false
 
 - name: set and persist cilium_installed fact
   ansible.builtin.template:

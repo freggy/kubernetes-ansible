@@ -5,6 +5,7 @@ __libcontainers_version_minor: '{{ __libcontainers_version_array[:3] | join(".")
 __libcontainers_version_major: '{{ __libcontainers_version_array[:2] | join(".") }}'
 __libcontainers_version_path_element: '{{ __libcontainers_version_major }}:/{{ __libcontainers_version_minor }}'
 
+kube_oidc_auth_enabled: false
 kube_apt_os: xUbuntu_22.04
 kube_libcontainers_apt_keys:
   - url: 'https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ kube_apt_os }}/Release.key'
