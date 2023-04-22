@@ -94,9 +94,9 @@
   when: config is changed
 
 - ansible.builtin.import_tasks: join-control-plane.yaml
-  delegate_to: '{{ groups.kube_master[0] }}'
-  run_once: true
-  when: ansible_local.kube.joined == false
+  when:
+    - inventory_hostname in groups.kube_master
+    - ansible_local.kube.joined == false
 
 - ansible.builtin.include_tasks: join-worker-node.yaml
   when: 
