@@ -30,9 +30,10 @@
     - cri-o-runc
     - libseccomp2
 
-- name: restart cri-o
+- name: enable and restart cri-o
   ansible.builtin.systemd:
     state: restarted
+    enabled: true
     daemon_reload: true
     name: crio
 
