@@ -8,7 +8,7 @@
 - name: update kubeadm
   ansible.builtin.apt:
     update_cache: yes
-    name: kubeadm={{ kube_version }}
+    name: kubeadm={{ kube_apt_version }}
   when: inventory_hostname == groups.kube_master[0]
 
 - name: hold kubeadm
