@@ -7,7 +7,8 @@
 
 - name: add cri-o and kubernetes apt repo
   ansible.builtin.apt_repository:
-    repo: '{{ item }}'
+    repo: '{{ item.repo }}'
+    filename: '{{ item.filename }}'
   loop: '{{ kube_apt_repos }}'
 
 - name: install kubeadm kubectl kubelet and update apt cache 

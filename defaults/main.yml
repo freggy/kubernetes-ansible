@@ -10,8 +10,10 @@ kube_apt_keys:
   - url: https://pkgs.k8s.io/addons:/cri-o:/stable:/v{{ __version_major }}/deb/Release.key
     keyring: /etc/apt/keyrings/cri-o-apt-keyring.gp
 kube_apt_repos:
-  - 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ __version_major }}/deb/'
-  - 'deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://pkgs.k8s.io/addons:/cri-o:/stable:/v{{ __version_major }}/deb/'
+  - repo: 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ __version_major }}/deb/'
+    filename: /etc/apt/sources.list.d/kubernetes.list
+  - repo: 'deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://pkgs.k8s.io/addons:/cri-o:/stable:/v{{ __version_major }}/deb/'
+    filename: /etc/apt/sources.list.d/cri-o.list
 kube_cluster_name: mycluster
 kube_pod_cidr: 10.244.0.0/16
 kube_apt_version: 1.29.1-1.1
