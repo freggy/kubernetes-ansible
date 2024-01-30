@@ -6,9 +6,9 @@ __version_major: '{{ __version_array[:2] | join(".") }}' # 1.29
 kube_oidc_auth_enabled: false
 kube_apt_keys:
   - url: https://pkgs.k8s.io/core:/stable:/v{{ __version_major }}/deb/Release.key
-    keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gp
+    keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
   - url: https://pkgs.k8s.io/addons:/cri-o:/stable:/v{{ __version_major }}/deb/Release.key
-    keyring: /etc/apt/keyrings/cri-o-apt-keyring.gp
+    keyring: /etc/apt/keyrings/cri-o-apt-keyring.gpg
 kube_apt_repos:
   - repo: 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ __version_major }}/deb/ /'
     filename: kubernetes
