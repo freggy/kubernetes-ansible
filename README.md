@@ -4,6 +4,8 @@ Kubernetes ansible
 This ansible role installs kubernetes using kubeadm. CRI-O will be installed beforehand. 
 Cilium CNI will be installed alongside Kubernetes.
 
+**Note**: all pre `3.x.x` versions of this role use the deprecated apt package repositories of CRI-O and Kubernetes.
+
 Role variables
 --------------
 
