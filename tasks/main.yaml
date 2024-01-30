@@ -48,22 +48,6 @@
 
 - ansible.builtin.include_tasks: generate-join-tokens.yaml
 - ansible.builtin.include_tasks: generate-cert-key.yaml
-
-- name: write KUBELET_EXTRA_ARGS
-  ansible.builtin.lineinfile:
-    path: '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'
-    line: "{{ 'Environment=\"KUBELET_EXTRA_ARGS=' + kube_kubelet_extra_args + '\"' }}"
-    regexp: '^Environment="KUBELET_EXTRA_ARGS='
-    state: present
-  register: config
-
-- name: restart kubelet
-  ansible.builtin.systemd:
-    state: restarted
-    daemon_reload: true
-    name: kubelet
-  when: config is changed
-
 - ansible.builtin.import_tasks: join-control-plane.yaml
   when:
     - inventory_hostname in groups.kube_master

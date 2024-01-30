@@ -1,6 +1,6 @@
 ---
 # internal variables
-__version_array: '{{ kube_apt_version | split(".") }}'                        # 1.29.1-1.1
+__version_array: '{{ kube_apt_version | split(".") }}'                        # 1 29 1-1 1
 __version_minor: '{{ __version_array[:3] | join(".") | split("-") | first }}' # before: 1.29.1-1, after: 1.29.1
 __version_major: '{{ __version_array[:2] | join(".") }}'                      # 1.29
 kube_oidc_auth_enabled: false
