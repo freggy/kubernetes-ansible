@@ -17,8 +17,8 @@
 - name: update kubectl and kubelet
   ansible.builtin.apt:
     pkg:
-      - kubectl={{ kube_version }}
-      - kubelet={{ kube_version }}
+      - kubectl={{ kube_apt_version }}
+      - kubelet={{ kube_apt_version }}
 
 - name: hold kubectl and kubelet
   ansible.builtin.dpkg_selections:

@@ -13,19 +13,16 @@ platforms:
       - kube_master
     location: nbg1
   - name: molecule-worker01
-    server_type: cx11
     image: ubuntu-22.04
     groups:
       - kube_worker
     location: nbg1
   - name: molecule-worker02
-    server_type: cx11
     image: ubuntu-22.04
     groups:
       - kube_worker
     location: nbg1
   - name: molecule-dex
-    server_type: cx11
     image: ubuntu-22.04
     groups:
       - dex
@@ -35,7 +32,7 @@ provisioner:
   playbooks:
     prepare: prepare.yml
 driver:
-  name: hetznercloud
+  name: molecule_hetznercloud
 dependency:
   name: galaxy
 verifier:

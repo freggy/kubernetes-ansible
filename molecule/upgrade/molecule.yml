@@ -16,12 +16,10 @@ platforms:
     groups:
       - kube_master
   - name: worker01
-    server_type: cx11
     image: debian-10
     groups:
       - kube_worker
   - name: worker02
-    server_type: cx11
     image: debian-10
     groups:
       - kube_worker
@@ -30,7 +28,7 @@ provisioner:
   playbooks:
     prepare: prepare.yml
 driver:
-  name: hetznercloud
+  name: molecule_hetznercloud
 dependency:
   name: galaxy
 verifier:
