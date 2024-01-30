@@ -21,10 +21,10 @@
   ansible.builtin.setup:
     filter: ansible_local
 
-- name: check if kube_version is set
+- name: check if kube_apt_version is set
   ansible.builtin.fail:
-    msg: kube_version not set
-  when: kube_version is not defined
+    msg: kube_apt_version not set
+  when: kube_apt_version is not defined
 
 - ansible.builtin.include_tasks: apt.yaml
 
