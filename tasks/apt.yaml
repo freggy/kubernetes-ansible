@@ -1,0 +1,38 @@
+---
+- name: add cri-o and kubernetes apt keys
+  ansible.builtin.apt_key:
+    url: '{{ item.url }}'
+    keyring: '{{ item.keyring }}'
+  loop: '{{ kube_apt_keys }}'
+
+- name: add cri-o and kubernetes apt repo
+  ansible.builtin.apt_repository:
+    repo: '{{ item }}'
+  loop: '{{ kube_apt_repos }}'
+
+- name: install kubeadm kubectl kubelet and update apt cache 
+  ansible.builtin.apt:
+    update_cache: yes
+    pkg:
+      - cri-o={{ kube_apt_version }}
+      - kubeadm={{ kube_apt_version }}
+      - kubectl={{ kube_apt_version }}
+      - kubelet={{ kube_apt_version }}
+
+- name: hold cri-o cri-o-runc libseccomp2 kubeadm kubectl kubelet
+  ansible.builtin.dpkg_selections:
+    name: '{{ item }}'
+    selection: hold
+  loop:
+    - cri-o
+    - kubeadm
+    - kubectl
+    - kubelet
+
+- name: enable and restart cri-o
+  ansible.builtin.systemd:
+    state: restarted
+    enabled: true
+    daemon_reload: true
+    name: crio
+

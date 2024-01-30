@@ -21,41 +21,12 @@
   ansible.builtin.setup:
     filter: ansible_local
 
-- ansible.builtin.include_tasks: install-cri-o.yaml
-  when: 
-    - '"cri-o" not in ansible_facts.packages'
-    - '"cri-o-runc" not in ansible_facts.packages'
-
-- name: add kubernetes apt key
-  ansible.builtin.apt_key: 
-    url: '{{ kube_apt_key_url }}'
-    keyring: /etc/apt/keyrings/kubernetes-archive-keyring.gpg
-
-- name: install kubernetes apt repository
-  ansible.builtin.apt_repository: 
-    repo: '{{ kube_apt_repository }}'
-
 - name: check if kube_version is set
   ansible.builtin.fail:
     msg: kube_version not set
   when: kube_version is not defined
 
-- name: install kubeadm kubectl kubelet and update apt cache 
-  ansible.builtin.apt:
-    update_cache: yes
-    pkg:
-      - kubeadm={{ kube_version }}-00
-      - kubectl={{ kube_version }}-00
-      - kubelet={{ kube_version }}-00
-
-- name: hold kubeadm kubectl kubelet
-  ansible.builtin.dpkg_selections:
-    name: '{{ item }}'
-    selection: hold
-  loop:
-    - kubeadm
-    - kubectl
-    - kubelet
+- ansible.builtin.include_tasks: apt.yaml
 
 - name: load br_netfilter 
   community.general.modprobe:
