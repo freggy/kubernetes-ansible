@@ -11,12 +11,10 @@ platforms:
     groups:
       - kube_master
   - name: molecule-worker01
-    server_type: cx11
     image: ubuntu-22.04
     groups:
       - kube_worker
   - name: molecule-worker02
-    server_type: cx11
     image: ubuntu-22.04
     groups:
       - kube_worker
@@ -25,7 +23,7 @@ provisioner:
   playbooks:
     prepare: prepare.yml
 driver:
-  name: hetznercloud
+  name: molecule_hetznercloud
 dependency:
   name: galaxy
 verifier:
